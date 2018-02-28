@@ -1,48 +1,47 @@
 package Client;
 
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by jk on 24/02/18.
  */
 public class BuildingClient {
 
-    private static final String DATA = "This is building client. I'm trying to send this message to client.";
-    private static final String ADDRESS = "localhost";
-    private static final int PORT = 9900;
+    private final static String SERVER_URL = "localhost";
+    private final static String QUEUE_NAME = "perodic_data";
+    private ConnectionFactory mFactory;
+    private Connection mConnection;
+    private Channel mChannel;
 
-    private Socket buildingSocket;
-    private DataOutputStream out;
-    private DataInputStream in;
-
-    public BuildingClient() {
-        try {
-            initializeBuilding();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void initializeBuilding() throws IOException {
-        buildingSocket = new Socket(ADDRESS, PORT);
-        System.out.println("Connected");
-        in = new DataInputStream(buildingSocket.getInputStream());
-        out = new DataOutputStream(buildingSocket.getOutputStream());
-
-        out.writeBytes(DATA);
-
-        out.close();
-        in.close();
-        buildingSocket.close();
+    private void sendMessage() throws IOException, TimeoutException {
+        mFactory = new ConnectionFactory();
+        mFactory.setHost(SERVER_URL);
+        mConnection = mFactory.newConnection();
+        mChannel = mConnection.createChannel();
+        mChannel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        String message = "hello, world!";
+        mChannel.basicPublish("", QUEUE_NAME, null, message.getBytes());
+        System.out.println(" [x] Sent '" + message + "'");
+        mChannel.close();
+        mConnection.close();
     }
 
     public static void main(String argv[]) {
-        System.out.println("I'm a building client.");
         BuildingClient client = new BuildingClient();
+        try {
+            client.sendMessage();
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 }

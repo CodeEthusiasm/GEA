@@ -1,54 +1,47 @@
 package Server;
 
+import com.rabbitmq.client.*;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by jk on 24/02/18.
  */
 public class Server {
 
-    private static final int PORT = 9900;
+    private final static String SERVER_URL = "localhost";
+    private final static String QUEUE_NAME = "perodic_data";
+    private static ConnectionFactory mFactory;
+    private static Connection mConnection;
+    private static Channel mChannel;
 
-    private ServerSocket serverSocket;
-    private Socket clientSocket;
-    private DataInputStream in;
-    private ByteArrayOutputStream out;
-
-    public Server() {
-        try {
-            initializeServer();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void initializeServer() throws IOException {
-        serverSocket = new ServerSocket(PORT);
-        System.out.println("Server started");
-        System.out.println("Waiting for a client ...");
-        clientSocket = serverSocket.accept();
-        System.out.println("Client accepted");
-
-        in = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
-        out = new ByteArrayOutputStream();
-
-        int bytesRead = 0;
-        byte[] buffer = new byte[1024];
-        while ((bytesRead = in.read(buffer)) > 0) {
-            out.write(buffer, 0, bytesRead);
-        }
-        System.out.println("Closing connection");
-        System.out.println(new String(out.toByteArray()));
-
-        clientSocket.close();
-        in.close();
-        out.close();
+    private void receiveMessage() throws IOException, TimeoutException {
+        mFactory = new ConnectionFactory();
+        mFactory.setHost(SERVER_URL);
+        mConnection = mFactory.newConnection();
+        mChannel = mConnection.createChannel();
+        mChannel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        System.out.println(" [*] Waiting for messages. To exit press ctrl+C");
     }
 
     public static void main(String [] args)  {
         System.out.println("I'm server.");
         Server server = new Server();
+        try {
+            server.receiveMessage();
+            Consumer consumer = new DefaultConsumer(mChannel) {
+                @Override
+                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                    String message = new String(body, "UTF-8");
+                    System.out.println(" [x] Received '" + message + "'");
+                }
+            };
+            mChannel.basicConsume(QUEUE_NAME, true, consumer);
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 }
