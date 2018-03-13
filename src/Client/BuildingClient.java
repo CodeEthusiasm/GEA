@@ -1,15 +1,12 @@
 package Client;
 
+import Model.DataModel;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
-import java.util.Scanner;
+import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -19,25 +16,30 @@ public class BuildingClient {
 
     private final static String SERVER_URL = "localhost";
     private final static String QUEUE_NAME = "perodic_data";
-    private ConnectionFactory mFactory;
-    private Connection mConnection;
-    private Channel mChannel;
+
+    private DataModel mData;
+
+    public BuildingClient(DataModel data) {
+        mData = data;
+    }
 
     private void sendMessage() throws IOException, TimeoutException {
-        mFactory = new ConnectionFactory();
-        mFactory.setHost(SERVER_URL);
-        mConnection = mFactory.newConnection();
-        mChannel = mConnection.createChannel();
-        mChannel.queueDeclare(QUEUE_NAME, false, false, false, null);
-        String message = "hello, world!";
-        mChannel.basicPublish("", QUEUE_NAME, null, message.getBytes());
-        System.out.println(" [x] Sent '" + message + "'");
-        mChannel.close();
-        mConnection.close();
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(SERVER_URL);
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+
+        channel.basicPublish("", QUEUE_NAME, null, DataModel.serialize(mData));
+        System.out.println(" [x] Sent '" + mData + "'");
+        channel.close();
+        connection.close();
     }
 
     public static void main(String argv[]) {
-        BuildingClient client = new BuildingClient();
+        Date date = new Date(2018, 2, 14);
+        DataModel data = new DataModel(date, "house", 1000, 100);
+        BuildingClient client = new BuildingClient(data);
         try {
             client.sendMessage();
         } catch (IOException | TimeoutException e) {

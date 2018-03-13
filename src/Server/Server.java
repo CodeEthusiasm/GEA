@@ -1,10 +1,10 @@
 package Server;
 
+import Model.DataModel;
 import com.rabbitmq.client.*;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -14,17 +14,33 @@ public class Server {
 
     private final static String SERVER_URL = "localhost";
     private final static String QUEUE_NAME = "perodic_data";
-    private static ConnectionFactory mFactory;
-    private static Connection mConnection;
-    private static Channel mChannel;
+
+    private Map<Date, DataModel> mModelMap;
+
+    public Server() {
+        mModelMap = new HashMap<>();
+    }
 
     private void receiveMessage() throws IOException, TimeoutException {
-        mFactory = new ConnectionFactory();
-        mFactory.setHost(SERVER_URL);
-        mConnection = mFactory.newConnection();
-        mChannel = mConnection.createChannel();
-        mChannel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(SERVER_URL);
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
         System.out.println(" [*] Waiting for messages. To exit press ctrl+C");
+        Consumer consumer = new DefaultConsumer(channel) {
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                try {
+                    DataModel data = DataModel.deserialize(body);
+                    mModelMap.put(data.getDate(), data);
+                    System.out.println(" [x] Received '" + data + "'");
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        channel.basicConsume(QUEUE_NAME, true, consumer);
     }
 
     public static void main(String [] args)  {
@@ -32,14 +48,6 @@ public class Server {
         Server server = new Server();
         try {
             server.receiveMessage();
-            Consumer consumer = new DefaultConsumer(mChannel) {
-                @Override
-                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-                    String message = new String(body, "UTF-8");
-                    System.out.println(" [x] Received '" + message + "'");
-                }
-            };
-            mChannel.basicConsume(QUEUE_NAME, true, consumer);
         } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }
