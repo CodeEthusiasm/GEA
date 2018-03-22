@@ -9,15 +9,17 @@ import java.util.Date;
 public class DataModel implements Serializable {
 
     private Date mDate;
-    private String mBuildingType;
+    private BuildingType mBuildingType;
     private int mElectricity;
     private int mGas;
+    private int mSquareMeter;
 
-    public DataModel(Date date, String type, int electricity, int gas) {
+    public DataModel(Date date, BuildingType type, int electricity, int gas, int size) {
         this.mDate = date;
         this.mBuildingType = type;
         this.mElectricity = electricity;
         this.mGas = gas;
+        this.mSquareMeter = size;
     }
 
     public Date getDate() {
@@ -28,28 +30,36 @@ public class DataModel implements Serializable {
         mDate = date;
     }
 
-    public String getBuildingType() {
+    public BuildingType getBuildingType() {
         return mBuildingType;
     }
 
-    public void setBuildingType(String buildingType) {
+    public void setBuildingType(BuildingType buildingType) {
         mBuildingType = buildingType;
     }
 
-    public int getmElectricity() {
+    public int getElectricity() {
         return mElectricity;
     }
 
-    public void setmElectricity(int electricity) {
+    public void setElectricity(int electricity) {
         this.mElectricity = electricity;
     }
 
-    public int getmGas() {
+    public int getGas() {
         return mGas;
     }
 
-    public void setmGas(int gas) {
+    public void setGas(int gas) {
         this.mGas = gas;
+    }
+
+    public int getSquareMeter() {
+        return mSquareMeter;
+    }
+
+    public void setSquareMeter(int squareMeter) {
+        mSquareMeter = squareMeter;
     }
 
     public static byte[] serialize(DataModel data) throws IOException {

@@ -1,7 +1,12 @@
 package Server;
 
 import Model.DataModel;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.rabbitmq.client.*;
+import org.bson.Document;
 
 import java.io.*;
 import java.util.*;
@@ -15,10 +20,13 @@ public class Server {
     private final static String SERVER_URL = "localhost";
     private final static String QUEUE_NAME = "perodic_data";
 
-    private Map<Date, DataModel> mModelMap;
+    private MongoCollection<Document> mCollection;
 
     public Server() {
-        mModelMap = new HashMap<>();
+        MongoClientURI uri = new MongoClientURI("mongodb://server:jeongkyun@ds219879.mlab.com:19879/gaedatabase");
+        MongoClient mongoClient = new MongoClient(uri);
+        MongoDatabase database = mongoClient.getDatabase("gaedatabase");
+        mCollection = database.getCollection("data");
     }
 
     private void receiveMessage() throws IOException, TimeoutException {
@@ -33,7 +41,27 @@ public class Server {
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 try {
                     DataModel data = DataModel.deserialize(body);
-                    mModelMap.put(data.getDate(), data);
+                    Document document = new Document();
+                    switch (data.getBuildingType()) {
+                        case House:
+                            document.append("type", "house");
+                            break;
+                        case Studio:
+                            document.append("type", "studio");
+                            break;
+                        case Factroy:
+                            document.append("type", "factory");
+                            break;
+                        case Apartment:
+                            document.append("type", "apartment");
+                            break;
+                        default:
+                            document.append("type", "default");
+                    }
+                    document.append("gas", data.getGas())
+                            .append("electricity", data.getElectricity())
+                            .append("size", data.getSquareMeter());
+                    mCollection.insertOne(document);
                     System.out.println(" [x] Received '" + data + "'");
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
