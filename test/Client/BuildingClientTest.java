@@ -12,8 +12,8 @@ class BuildingClientTest {
         LocalBuilding building1 = new LocalBuilding();
         LocalBuilding building2 = new LocalBuilding();
 
-        BuildingClient client = new BuildingClient(2000);
-        BuildingClient client2 = new BuildingClient(2001);
+        BuildingP2PClient client = new BuildingP2PClient(2000);
+        BuildingP2PClient client2 = new BuildingP2PClient(2001);
         client.connectToBuilding("localhost", 2001);
 
         building1.addListener(client::sendData);
