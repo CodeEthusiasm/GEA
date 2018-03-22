@@ -1,5 +1,6 @@
 package Client;
 
+import Model.BuildingType;
 import Model.DataModel;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -38,7 +39,7 @@ public class BuildingClient {
 
     public static void main(String argv[]) {
         Date date = new Date(2018, 2, 14);
-        DataModel data = new DataModel(date, "house", 1000, 100);
+        DataModel data = new DataModel(date, BuildingType.House, 1000, 100, 100);
         BuildingClient client = new BuildingClient(data);
         try {
             client.sendMessage();
