@@ -1,120 +1,49 @@
 package Client;
 
-import Client.building.Data;
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
+import Model.DataModel;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Date;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by jk on 24/02/18.
  */
 public class BuildingClient {
 
-    private ArrayList<byte[]> dataToSend = new ArrayList<>();
+    private final static String SERVER_URL = "localhost";
+    private final static String QUEUE_NAME = "perodic_data";
 
-    private boolean shouldRun;
+    private DataModel mData;
 
-    BuildingClient(int port) throws IOException {
-        shouldRun = true;
-        new Thread(new AcceptRunnable(port)).start();
+    public BuildingClient(DataModel data) {
+        mData = data;
     }
 
-    public void connectToBuilding(String address, int port) throws IOException {
-        // Initiate a connection
-        Socket s = new Socket(address, port);
-        new Thread(new ConnectionRunnable(s, true)).start();
-        new Thread(new ConnectionRunnable(s, false)).start();
+    private void sendMessage() throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(SERVER_URL);
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+
+        channel.basicPublish("", QUEUE_NAME, null, DataModel.serialize(mData));
+        System.out.println(" [x] Sent '" + mData + "'");
+        channel.close();
+        connection.close();
     }
 
-    public void stop() {
-        this.shouldRun = false;
-    }
-
-    private void sendData(byte[] data) {
-        this.dataToSend.add(data);
-    }
-
-    public void sendData(Data data) {
+    public static void main(String argv[]) {
+        Date date = new Date(2018, 2, 14);
+        DataModel data = new DataModel(date, "house", 1000, 100);
+        BuildingClient client = new BuildingClient(data);
         try {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            ObjectOutputStream stream1 = new ObjectOutputStream(stream);
-            stream1.writeObject(data);
-            this.sendData(stream.toByteArray());
-        } catch (Exception e) {
+            client.sendMessage();
+        } catch (IOException | TimeoutException e) {
             e.printStackTrace();
-        }
-    }
-
-    private class AcceptRunnable implements Runnable {
-
-        private final ServerSocket serverSocket;
-
-        AcceptRunnable(int port) throws IOException {
-            System.out.println("Accepting connections on " + port);
-            this.serverSocket = new ServerSocket(port);
-        }
-
-        @Override
-        public void run() {
-            while (shouldRun) {
-                // Accept a connection
-                try {
-                    Socket s = serverSocket.accept();
-                    System.out.println("Accepted connection: " + serverSocket.getInetAddress());
-                    new Thread(new ConnectionRunnable(s, true)).start();
-                    new Thread(new ConnectionRunnable(s, false)).start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private class ConnectionRunnable implements Runnable {
-
-        private int sent = 0;
-        private final OutputStream os;
-        private final InputStream is;
-        private final boolean receive;
-
-        ConnectionRunnable(Socket socket, boolean receive) throws IOException {
-            System.out.println("Connected to building " + socket.getPort());
-            this.receive = receive;
-            os = socket.getOutputStream();
-            is = socket.getInputStream();
-        }
-
-        @Override
-        public void run() {
-            while (shouldRun) {
-                if (this.receive) {
-                    // Receive data
-                    try {
-                        System.out.println(is.read());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    // Send data
-                    if (sent < dataToSend.size()) {
-                        try {
-                            os.write(dataToSend.get(sent));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        sent++;
-                    } else {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
         }
     }
 }
