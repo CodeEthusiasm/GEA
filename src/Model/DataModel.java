@@ -1,65 +1,44 @@
 package Model;
 
 import java.io.*;
-import java.util.Date;
 
 /**
  * Created by jk on 13/03/18.
  */
 public class DataModel implements Serializable {
 
-    private Date mDate;
-    private BuildingType mBuildingType;
-    private int mElectricity;
-    private int mGas;
-    private int mSquareMeter;
+    private String mBuildingType;
+    private double mElecPerSqr;
+    private double mGasPerSqr;
 
-    public DataModel(Date date, BuildingType type, int electricity, int gas, int size) {
-        this.mDate = date;
+    public DataModel(String type, int electricity, int gas, int size) {
         this.mBuildingType = type;
-        this.mElectricity = electricity;
-        this.mGas = gas;
-        this.mSquareMeter = size;
+        this.mElecPerSqr = electricity / (double)size;
+        this.mGasPerSqr = gas / (double)size;
     }
 
-    public Date getDate() {
-        return mDate;
-    }
-
-    public void setDate(Date date) {
-        mDate = date;
-    }
-
-    public BuildingType getBuildingType() {
+    public String getBuildingType() {
         return mBuildingType;
     }
 
-    public void setBuildingType(BuildingType buildingType) {
+    public void setBuildingType(String buildingType) {
         mBuildingType = buildingType;
     }
 
-    public int getElectricity() {
-        return mElectricity;
+    public double getElecPerSqr() {
+        return mElecPerSqr;
     }
 
-    public void setElectricity(int electricity) {
-        this.mElectricity = electricity;
+    public void setElecPerSqr(int elecPerSqr) {
+        this.mElecPerSqr = elecPerSqr;
     }
 
-    public int getGas() {
-        return mGas;
+    public double getGasPerSqr() {
+        return mGasPerSqr;
     }
 
-    public void setGas(int gas) {
-        this.mGas = gas;
-    }
-
-    public int getSquareMeter() {
-        return mSquareMeter;
-    }
-
-    public void setSquareMeter(int squareMeter) {
-        mSquareMeter = squareMeter;
+    public void setGasPerSqr(int gasPerSqr) {
+        this.mGasPerSqr = gasPerSqr;
     }
 
     public static byte[] serialize(DataModel data) throws IOException {
@@ -78,10 +57,9 @@ public class DataModel implements Serializable {
     @Override
     public String toString() {
         return "\n" +
-                mDate.toString() + "\n" +
                 "type :" + mBuildingType + "\n" +
                 "consumption\n" +
-                "electricity: " + mElectricity + " kWh\n" +
-                "gas: " + mGas + " m^3";
+                "electricity: " + mElecPerSqr + " kWh\n" +
+                "gas: " + mGasPerSqr + " m^3";
     }
 }
