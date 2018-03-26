@@ -1,14 +1,11 @@
 package Client;
 
-import Client.building.Building;
-import Model.BuildingType;
 import Model.DataModel;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 
@@ -42,24 +39,24 @@ public class BuildingClient {
     private static DataModel getRandomData() {
         Random r = new Random();
         int n = r.nextInt() & Integer.MAX_VALUE;
-        BuildingType randomType;
+        String randomType;
         switch (n % 4) {
             case 0:
-                randomType = BuildingType.Studio;
+                randomType = "studio";
                 break;
             case 1:
-                randomType = BuildingType.Apartment;
+                randomType = "apartment";
                 break;
             case 2:
-                randomType = BuildingType.Factroy;
+                randomType = "factory";
                 break;
             default:
-                randomType = BuildingType.House;
+                randomType = "house";
         }
         return new DataModel(randomType,
-                (r.nextInt() & Integer.MAX_VALUE) % 1000,
-                (r.nextInt() & Integer.MAX_VALUE) % 100,
-                (r.nextInt() & Integer.MAX_VALUE) % 100);
+                (r.nextInt() & Integer.MAX_VALUE) % 1000 + 50,
+                (r.nextInt() & Integer.MAX_VALUE) % 100 + 50,
+                (r.nextInt() & Integer.MAX_VALUE) % 100 + 20);
     }
 
     public static void main(String[] argv) {

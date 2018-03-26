@@ -9,7 +9,6 @@ import com.rabbitmq.client.*;
 import org.bson.Document;
 
 import java.io.*;
-import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -42,25 +41,20 @@ public class Server {
                 try {
                     DataModel data = DataModel.deserialize(body);
                     Document document = new Document();
-                    switch (data.getBuildingType()) {
-                        case House:
-                            document.append("type", "house");
-                            break;
-                        case Studio:
-                            document.append("type", "studio");
-                            break;
-                        case Factroy:
-                            document.append("type", "factory");
-                            break;
-                        case Apartment:
-                            document.append("type", "apartment");
-                            break;
-                        default:
-                            document.append("type", "default");
+                    String buildingType = data.getBuildingType().toLowerCase();
+                    if ("house".equals(buildingType)) {
+                        document.append("type", "house");
+                    } else if ("studio".equals(buildingType)) {
+                        document.append("type", "studio");
+                    } else if ("studio".equals(buildingType)) {
+                        document.append("type", "factory");
+                    } else if ("studio".equals(buildingType)) {
+                        document.append("type", "apartment");
+                    } else {
+                        document.append("type", "default");
                     }
-                    document.append("gas", data.getGas())
-                            .append("electricity", data.getElectricity())
-                            .append("size", data.getSquareMeter());
+                    document.append("gas", data.getGasPerSqr())
+                            .append("electricity", data.getElecPerSqr());
                     mCollection.insertOne(document);
                     System.out.println(" [x] Received '" + data + "'");
                 } catch (ClassNotFoundException e) {
