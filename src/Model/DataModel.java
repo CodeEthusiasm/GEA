@@ -8,26 +8,16 @@ import java.util.Date;
  */
 public class DataModel implements Serializable {
 
-    private Date mDate;
     private BuildingType mBuildingType;
     private int mElectricity;
     private int mGas;
     private int mSquareMeter;
 
-    public DataModel(Date date, BuildingType type, int electricity, int gas, int size) {
-        this.mDate = date;
+    public DataModel(BuildingType type, int electricity, int gas, int size) {
         this.mBuildingType = type;
         this.mElectricity = electricity;
         this.mGas = gas;
         this.mSquareMeter = size;
-    }
-
-    public Date getDate() {
-        return mDate;
-    }
-
-    public void setDate(Date date) {
-        mDate = date;
     }
 
     public BuildingType getBuildingType() {
@@ -78,7 +68,6 @@ public class DataModel implements Serializable {
     @Override
     public String toString() {
         return "\n" +
-                mDate.toString() + "\n" +
                 "type :" + mBuildingType + "\n" +
                 "consumption\n" +
                 "electricity: " + mElectricity + " kWh\n" +

@@ -1,5 +1,6 @@
 package Client;
 
+import Client.building.Building;
 import Model.BuildingType;
 import Model.DataModel;
 import com.rabbitmq.client.Channel;
@@ -8,6 +9,7 @@ import com.rabbitmq.client.ConnectionFactory;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Random;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -37,14 +39,39 @@ public class BuildingClient {
         connection.close();
     }
 
-    public static void main(String argv[]) {
-        Date date = new Date(2018, 2, 14);
-        DataModel data = new DataModel(date, BuildingType.House, 1000, 100, 100);
-        BuildingClient client = new BuildingClient(data);
-        try {
-            client.sendMessage();
-        } catch (IOException | TimeoutException e) {
-            e.printStackTrace();
+    private static DataModel getRandomData() {
+        Random r = new Random();
+        int n = r.nextInt() & Integer.MAX_VALUE;
+        BuildingType randomType;
+        switch (n % 4) {
+            case 0:
+                randomType = BuildingType.Studio;
+                break;
+            case 1:
+                randomType = BuildingType.Apartment;
+                break;
+            case 2:
+                randomType = BuildingType.Factroy;
+                break;
+            default:
+                randomType = BuildingType.House;
+        }
+        return new DataModel(randomType,
+                (r.nextInt() & Integer.MAX_VALUE) % 1000,
+                (r.nextInt() & Integer.MAX_VALUE) % 100,
+                (r.nextInt() & Integer.MAX_VALUE) % 100);
+    }
+
+    public static void main(String[] argv) {
+        while (true) {
+            DataModel data = getRandomData();
+            BuildingClient client = new BuildingClient(data);
+            try {
+                client.sendMessage();
+                Thread.sleep(1000);
+            } catch (IOException | TimeoutException | InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
