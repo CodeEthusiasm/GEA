@@ -1,6 +1,6 @@
 package com.rug.gea.Model;
 
-import java.io.Serializable;
+import java.io.*;
 
 public class Client {
 

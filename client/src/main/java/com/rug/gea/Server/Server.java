@@ -1,11 +1,14 @@
 package com.rug.gea.Server;
 
+import com.rug.gea.Model.Client;
 import com.rug.gea.Model.DataModel;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.rabbitmq.client.*;
+import com.rug.gea.Model.Information;
+import com.rug.gea.Model.Serialize;
 import org.bson.Document;
 
 import java.io.*;
@@ -28,6 +31,21 @@ public class Server {
         mCollection = database.getCollection("data");
     }
 
+    public void sendMessage(String zip, Information info) throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(SERVER_URL);
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+
+        channel.exchangeDeclare(zip, "fanout");
+
+        channel.basicPublish(zip, "", null, Serialize.serialize(info));
+        System.out.println(" [x] Sent '" + info + "'");
+
+        channel.close();
+        connection.close();
+    }
+
     private void receiveMessage() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(SERVER_URL);
@@ -39,7 +57,7 @@ public class Server {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 try {
-                    DataModel data = DataModel.deserialize(body);
+                    DataModel data = (DataModel)Serialize.deserialize(body);
                     Document document = new Document();
                     String buildingType = data.getBuildingType().toLowerCase();
                     if ("house".equals(buildingType)) {
@@ -65,13 +83,10 @@ public class Server {
         channel.basicConsume(QUEUE_NAME, true, consumer);
     }
 
-    public static void main(String [] args)  {
+    public static void main(String [] args) throws IOException, TimeoutException {
         System.out.println("I'm server.");
         Server server = new Server();
-        try {
-            server.receiveMessage();
-        } catch (IOException | TimeoutException e) {
-            e.printStackTrace();
-        }
+//        server.sendMessage("zipcode", new Information());
+        server.receiveMessage();
     }
 }

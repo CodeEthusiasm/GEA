@@ -41,19 +41,6 @@ public class DataModel implements Serializable {
         this.mGasPerSqr = gasPerSqr;
     }
 
-    public static byte[] serialize(DataModel data) throws IOException {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
-        objOut.writeObject(data);
-        return byteOut.toByteArray();
-    }
-
-    public static DataModel deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
-        ByteArrayInputStream byteIn = new ByteArrayInputStream(bytes);
-        ObjectInputStream objIn = new ObjectInputStream(byteIn);
-        return (DataModel)objIn.readObject();
-    }
-
     @Override
     public boolean equals(Object obj) {
         DataModel dataModel2;
