@@ -1,17 +1,20 @@
 package com.rug.gea;
 
-import com.rug.gea.Client.building.Data;
 import com.rug.gea.Client.building.LocalBuilding;
+import com.rug.gea.Model.DataModel;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class LocalBuildingTest {
+public class LocalBuildingTest {
     @Test
-    void testLocalBuildingDataGeneration() {
+    /**
+     * Tests whether the local building will generate data.
+     */
+    public void testLocalBuildingDataGeneration() {
         LocalBuilding building = new LocalBuilding();
         AtomicBoolean receivedData = new AtomicBoolean(false);
-        building.addListener((Data d) -> receivedData.set(true));
+        building.addListener((DataModel d) -> receivedData.set(true));
         building.start();
         try {
             Thread.sleep(5000);

@@ -1,18 +1,26 @@
 package com.rug.gea.Client;
 
-import com.rug.gea.Client.building.Data;
+import com.rug.gea.Client.building.RemoteBuilding;
+import com.rug.gea.Model.DataModel;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by jk on 24/02/18.
  */
 public class BuildingP2PClient {
 
+    public interface OnBuildingConnectedListener {
+        void onBuildingConnected(RemoteBuilding b);
+    }
+
     private ArrayList<byte[]> dataToSend = new ArrayList<>();
+
+    private final ArrayList<OnBuildingConnectedListener> listeners = new ArrayList<>();
 
     private boolean shouldRun;
 
@@ -21,11 +29,18 @@ public class BuildingP2PClient {
         new Thread(new AcceptRunnable(port)).start();
     }
 
+    public void addOnBuildingConnectedListener(OnBuildingConnectedListener listener) {
+        listeners.add(listener);
+    }
+
     public void connectToBuilding(String address, int port) throws IOException {
         // Initiate a connection
         Socket s = new Socket(address, port);
-        new Thread(new ConnectionRunnable(s, true)).start();
-        new Thread(new ConnectionRunnable(s, false)).start();
+        RemoteBuilding building = new RemoteBuilding();
+        new Thread(new ConnectionRunnable(s, true, building)).start();
+        new Thread(new ConnectionRunnable(s, false, null)).start();
+        for (OnBuildingConnectedListener listener : listeners)
+            listener.onBuildingConnected(building);
     }
 
     public void stop() {
@@ -36,7 +51,7 @@ public class BuildingP2PClient {
         this.dataToSend.add(data);
     }
 
-    public void sendData(Data data) {
+    public void sendData(DataModel data) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             ObjectOutputStream stream1 = new ObjectOutputStream(stream);
@@ -63,8 +78,11 @@ public class BuildingP2PClient {
                 try {
                     Socket s = serverSocket.accept();
                     System.out.println("Accepted connection: " + serverSocket.getInetAddress());
-                    new Thread(new ConnectionRunnable(s, true)).start();
-                    new Thread(new ConnectionRunnable(s, false)).start();
+                    RemoteBuilding building = new RemoteBuilding();
+                    new Thread(new ConnectionRunnable(s, true, building)).start();
+                    new Thread(new ConnectionRunnable(s, false, null)).start();
+                    for (OnBuildingConnectedListener listener : listeners)
+                        listener.onBuildingConnected(building);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -78,22 +96,26 @@ public class BuildingP2PClient {
         private final OutputStream os;
         private final InputStream is;
         private final boolean receive;
+        private final RemoteBuilding building;
 
-        ConnectionRunnable(Socket socket, boolean receive) throws IOException {
+        ConnectionRunnable(Socket socket, boolean receive, RemoteBuilding building) throws IOException {
             System.out.println("Connected to building " + socket.getPort());
             this.receive = receive;
             os = socket.getOutputStream();
             is = socket.getInputStream();
+            this.building = building;
         }
 
         @Override
         public void run() {
             while (shouldRun) {
                 if (this.receive) {
-                    // Receive data
                     try {
-                        System.out.println(is.read());
-                    } catch (IOException e) {
+                        // Receive data
+                        ObjectInputStream inputStream = new ObjectInputStream(is);
+                        DataModel model = (DataModel) inputStream.readObject();
+                        building.addData(model);
+                    } catch (IOException | ClassNotFoundException | TimeoutException e) {
                         e.printStackTrace();
                     }
                 } else {

@@ -55,6 +55,19 @@ public class DataModel implements Serializable {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        DataModel dataModel2;
+        try {
+            dataModel2 = (DataModel) obj;
+        } catch (ClassCastException e) {
+            return false;
+        }
+        return dataModel2.mBuildingType.equals(mBuildingType)
+                && dataModel2.mElecPerSqr == mElecPerSqr
+                && dataModel2.mGasPerSqr == mGasPerSqr;
+    }
+
+    @Override
     public String toString() {
         return "\n" +
                 "type :" + mBuildingType + "\n" +
