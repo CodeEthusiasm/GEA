@@ -1,12 +1,21 @@
 package com.rug.gea.Client;
 
 import com.rug.gea.Client.building.Building;
+import com.rug.gea.Model.Client;
 import com.rug.gea.Model.DataModel;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
