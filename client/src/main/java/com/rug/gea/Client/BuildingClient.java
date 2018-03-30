@@ -2,23 +2,28 @@ package com.rug.gea.Client;
 
 import com.rabbitmq.client.*;
 import com.rug.gea.Client.building.Building;
+import com.rug.gea.Model.Client;
 import com.rug.gea.Model.DataModel;
 import com.rug.gea.Model.Information;
 import com.rug.gea.Model.Serialize;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
  * Created by jk on 24/02/18.
  */
-public abstract class BuildingClient {
+public class BuildingClient {
 
     private final static String SERVER_URL = "localhost";
-    private final static String QUEUE_NAME = "perodic_data";
+    private final static String QUEUE_NAME = "periodic_data";
 
-    public BuildingClient(Building building) {
+    private List<Client> clients;
+
+    public BuildingClient(Building building, String zip) {
         building.addListener(this::sendMessage);
+        clients = API.fetchData(zip);
     }
 
     private void sendMessage(DataModel data) throws IOException, TimeoutException {
@@ -62,5 +67,21 @@ public abstract class BuildingClient {
         channel.basicConsume(queueName, true, consumer);
     }
 
-    public abstract void handlingInfo(Information info);
+    public void handlingInfo(Information info) {
+        switch (info.getRequest()) {
+            case Create:
+                clients.add(info.getClient());
+                break;
+            case Update:
+                Client c = info.getClient();
+                if (clients.contains(c)) {
+                    clients.remove(c);
+                    clients.add(c);
+                }
+                break;
+            case Delete:
+                clients.remove(info.getClient());
+                break;
+        }
+    }
 }

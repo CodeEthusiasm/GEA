@@ -64,6 +64,12 @@ public class Client {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        Client c = (Client) obj;
+        return c.getConnectAddress().equals(this.connectAddress);
+    }
+
+    @Override
     public String toString() {
         return "main.java.com.rug.gea.Client{" +
                 "address='" + address + '\'' +
