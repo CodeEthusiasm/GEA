@@ -16,10 +16,15 @@ import java.util.concurrent.TimeoutException;
  */
 public class BuildingClient {
 
+    public interface OnUpdatedClientListener {
+        void onUpdatedClient();
+    }
+
     private final static String SERVER_URL = "localhost";
     private final static String QUEUE_NAME = "periodic_data";
 
     private List<Client> clients;
+    private OnUpdatedClientListener listener;
 
     public BuildingClient(Building building, String zip) {
         building.addListener(this::sendMessage);
@@ -59,6 +64,7 @@ public class BuildingClient {
                     Information info = (Information)Serialize.deserialize(body);
                     System.out.println(" [x] Received '" + info + "'");
                     handlingInfo(info);
+                    listener.onUpdatedClient();
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }

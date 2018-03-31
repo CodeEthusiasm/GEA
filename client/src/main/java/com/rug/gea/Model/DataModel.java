@@ -56,10 +56,6 @@ public class DataModel implements Serializable {
 
     @Override
     public String toString() {
-        return "\n" +
-                "type :" + mBuildingType + "\n" +
-                "consumption\n" +
-                "electricity: " + mElecPerSqr + " kWh\n" +
-                "gas: " + mGasPerSqr + " m^3";
+        return "electricity: " + mElecPerSqr + " kWh" + ", gas: " + mGasPerSqr + " m^3";
     }
 }

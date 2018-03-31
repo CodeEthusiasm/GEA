@@ -32,7 +32,9 @@ public class LocalBuilding extends Building {
         new Thread(() -> {
             while (shouldRun) {
                 try {
-                    addData(getRandomData());
+                    DataModel d = getRandomData();
+                    System.out.println("Usage: " + d);
+                    addData(d);
                     Thread.sleep(1000);
                 } catch (InterruptedException | TimeoutException | IOException e) {
                     e.printStackTrace();
