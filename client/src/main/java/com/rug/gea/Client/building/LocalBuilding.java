@@ -32,9 +32,7 @@ public class LocalBuilding extends Building {
         new Thread(() -> {
             while (shouldRun) {
                 try {
-                    DataModel d = getRandomData();
-                    System.out.println("Usage: " + d);
-                    addData(d);
+                    addData(getRandomData());
                     Thread.sleep(1000);
                 } catch (InterruptedException | TimeoutException | IOException e) {
                     e.printStackTrace();
@@ -45,22 +43,7 @@ public class LocalBuilding extends Building {
 
     private static DataModel getRandomData() {
         Random r = new Random();
-        int n = r.nextInt() & Integer.MAX_VALUE;
-        String randomType;
-        switch (n % 4) {
-            case 0:
-                randomType = "studio";
-                break;
-            case 1:
-                randomType = "apartment";
-                break;
-            case 2:
-                randomType = "factory";
-                break;
-            default:
-                randomType = "house";
-        }
-        return new DataModel(randomType,
+        return new DataModel("house",
                 (r.nextInt() & Integer.MAX_VALUE) % 1000 + 50,
                 (r.nextInt() & Integer.MAX_VALUE) % 100 + 50,
                 (r.nextInt() & Integer.MAX_VALUE) % 100 + 20);

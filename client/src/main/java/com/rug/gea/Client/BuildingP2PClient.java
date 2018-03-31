@@ -6,6 +6,7 @@ import com.rug.gea.Model.DataModel;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
@@ -93,12 +94,14 @@ public class BuildingP2PClient {
     private class ConnectionRunnable implements Runnable {
 
         private int sent = 0;
+        private Socket socket;
         private final OutputStream os;
         private final InputStream is;
         private final boolean receive;
         private final RemoteBuilding building;
 
         ConnectionRunnable(Socket socket, boolean receive, RemoteBuilding building) throws IOException {
+            this.socket = socket;
             System.out.println("Connected to building " + socket.getPort());
             this.receive = receive;
             os = socket.getOutputStream();
@@ -115,6 +118,12 @@ public class BuildingP2PClient {
                         ObjectInputStream inputStream = new ObjectInputStream(is);
                         DataModel model = (DataModel) inputStream.readObject();
                         building.addData(model);
+                    } catch (SocketException e) {
+                        try {
+                            this.socket.close();
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
                     } catch (IOException | ClassNotFoundException | TimeoutException e) {
                         e.printStackTrace();
                     }
@@ -123,6 +132,12 @@ public class BuildingP2PClient {
                     if (sent < dataToSend.size()) {
                         try {
                             os.write(dataToSend.get(sent));
+                        } catch (SocketException e) {
+                            try {
+                                this.socket.close();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

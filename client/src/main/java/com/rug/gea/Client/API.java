@@ -14,6 +14,8 @@ import java.util.List;
 
 public final class API {
 
+    private static final String SERVER_URL = "http://192.168.178.67:8080/";
+
     private static byte[] getNeighborsBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -44,7 +46,7 @@ public final class API {
     public static List<Client> fetchData(String zip) {
         List<Client> clients = new ArrayList<>();
         try {
-            String urlSpec = "http://localhost:8080/neighbours?zip=" + zip;
+            String urlSpec = SERVER_URL + "neighbours?zip=" + zip;
             String jsonString = getNeighborString(urlSpec);
             JSONArray jsonArray = new JSONArray(jsonString);
             parseNeighbors(clients, jsonArray);

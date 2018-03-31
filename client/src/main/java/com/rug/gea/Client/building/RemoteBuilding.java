@@ -12,7 +12,6 @@ public class RemoteBuilding extends Building {
 
     public void addData(DataModel d) throws IOException, TimeoutException {
         data.add(d);
-        System.out.println("Received : " + d);
         for (OnDataReceivedListener listener : listeners)
             listener.onDataReceived(d);
     }

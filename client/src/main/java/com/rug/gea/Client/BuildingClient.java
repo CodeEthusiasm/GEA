@@ -29,6 +29,19 @@ public class BuildingClient {
     public BuildingClient(Building building, String zip) {
         building.addListener(this::sendMessage);
         clients = API.fetchData(zip);
+        try {
+            receiveMessage(zip);
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addListener(OnUpdatedClientListener listener) {
+        this.listener = listener;
+    }
+
+    public List<Client> getClients() {
+        return clients;
     }
 
     private void sendMessage(DataModel data) throws IOException, TimeoutException {
