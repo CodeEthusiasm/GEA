@@ -4,6 +4,8 @@ import org.springframework.data.annotation.Id;
 
 public class Client {
 
+    @Id
+    public String id;
     public String address;
     public String zip;
     public int sqm;
@@ -30,9 +32,19 @@ public class Client {
         this.buildingType = buildingType;
     }
 
+    public Client(String id, String address, String zip, int sqm, String connectAddress, String buildingType) {
+        this.id = id;
+        this.address = address;
+        this.zip = zip;
+        this.sqm = sqm;
+        this.connectAddress = connectAddress;
+        this.buildingType = buildingType;
+    }
+
     public String getAddress() {
 
         return address;
+
     }
 
     public void setAddress(String address) {
