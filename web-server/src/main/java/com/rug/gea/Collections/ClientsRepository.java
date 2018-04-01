@@ -8,5 +8,4 @@ import java.util.List;
 public interface ClientsRepository extends MongoRepository<Client, String> {
 
     public List<Client> findByZip(String zip);
-
 }
