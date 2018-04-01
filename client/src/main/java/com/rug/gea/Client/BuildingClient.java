@@ -2,10 +2,10 @@ package com.rug.gea.Client;
 
 import com.rabbitmq.client.*;
 import com.rug.gea.Client.building.Building;
-import com.rug.gea.Model.Client;
-import com.rug.gea.Model.DataModel;
-import com.rug.gea.Model.Information;
-import com.rug.gea.Model.Serialize;
+import com.rug.gea.DataModels.Client;
+import com.rug.gea.DataModels.Data;
+import com.rug.gea.DataModels.Information;
+import com.rug.gea.DataModels.Serialize;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,7 +44,7 @@ public class BuildingClient {
         return clients;
     }
 
-    private void sendMessage(DataModel data) throws IOException, TimeoutException {
+    private void sendMessage(Data data) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(SERVER_URL);
         Connection connection = factory.newConnection();

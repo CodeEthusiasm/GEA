@@ -1,7 +1,7 @@
 package com.rug.gea.Client;
 
 import com.rug.gea.Client.building.RemoteBuilding;
-import com.rug.gea.Model.DataModel;
+import com.rug.gea.DataModels.Data;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -52,7 +52,7 @@ public class BuildingP2PClient {
         this.dataToSend.add(data);
     }
 
-    public void sendData(DataModel data) {
+    public void sendData(Data data) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             ObjectOutputStream stream1 = new ObjectOutputStream(stream);
@@ -116,7 +116,7 @@ public class BuildingP2PClient {
                     try {
                         // Receive data
                         ObjectInputStream inputStream = new ObjectInputStream(is);
-                        DataModel model = (DataModel) inputStream.readObject();
+                        Data model = (Data) inputStream.readObject();
                         building.addData(model);
                     } catch (SocketException | EOFException e) {
                         try {

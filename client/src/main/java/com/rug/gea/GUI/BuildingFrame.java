@@ -3,12 +3,11 @@ package com.rug.gea.GUI;
 import com.rug.gea.Client.BuildingClient;
 import com.rug.gea.Client.BuildingP2PClient;
 import com.rug.gea.Client.building.LocalBuilding;
-import com.rug.gea.Model.Client;
-import com.rug.gea.Model.DataModel;
+import com.rug.gea.DataModels.Client;
+import com.rug.gea.DataModels.Data;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
@@ -26,11 +25,11 @@ public class BuildingFrame extends JFrame {
     private double[] localUsage = new double[]{0, 0};
     private double[] remoteUsage = new double[]{0, 0};
 
-    private static double[] getAverage(List<DataModel> data) {
+    private static double[] getAverage(List<Data> data) {
         double elec = 0, gas = 0;
-        for (DataModel d : data) {
-            elec += d.getElecPerSqr();
-            gas += d.getGasPerSqr();
+        for (Data d : data) {
+            elec += d.getElectricity();
+            gas += d.getGas();
         }
         elec /= data.size();
         gas /= data.size();
@@ -39,7 +38,7 @@ public class BuildingFrame extends JFrame {
 
     private void setup(final BuildingPanel panel) throws IOException {
         LocalBuilding building = new LocalBuilding();
-        java.util.List<DataModel> myUsage = new ArrayList<>();
+        java.util.List<Data> myUsage = new ArrayList<>();
         building.addListener(d -> {
             myUsage.add(d);
             double[] average = getAverage(myUsage);
@@ -53,9 +52,10 @@ public class BuildingFrame extends JFrame {
         BuildingP2PClient p2pClient = new BuildingP2PClient(PORT);
         BuildingClient buildingClient = new BuildingClient(building, ZIP);
 
-        java.util.List<DataModel> neighborUsage = new ArrayList<>();
+        java.util.List<Data> neighborUsage = new ArrayList<>();
         List<Client> clients = buildingClient.getClients();
-        buildingClient.addListener(() -> System.out.println("clients are updated"));
+        panel.setNeighborList((ArrayList<Client>) clients);
+        buildingClient.addListener(() -> panel.setNeighborList((ArrayList<Client>) buildingClient.getClients()));
 
         p2pClient.addOnBuildingConnectedListener(b -> {
             b.addListener(d -> {

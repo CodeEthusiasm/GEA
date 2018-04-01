@@ -1,8 +1,11 @@
 package com.rug.gea.GUI;
 
+import com.rug.gea.DataModels.Client;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class BuildingPanel extends JPanel {
 
@@ -87,5 +90,13 @@ public class BuildingPanel extends JPanel {
     public void setNeighborElec(double neighborElec) {
         this.neighborelec = neighborElec;
         this.neighborElec.setText("[Electricity] " + neighborElec + " kWh");
+    }
+
+    public void setNeighborList(ArrayList<Client> clients) {
+        StringBuilder builder = new StringBuilder();
+        for (Client c : clients) {
+            builder.append(c.getAddress()).append('\n');
+        }
+        this.neighborList.setText(builder.toString());
     }
 }

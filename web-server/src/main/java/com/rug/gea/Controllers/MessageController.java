@@ -1,29 +1,26 @@
-package com.rug.gea.Server;
+package com.rug.gea.Controllers;
 
-import com.rug.gea.DataModels.Data;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.rabbitmq.client.*;
+import com.rug.gea.DataModels.Data;
 import com.rug.gea.DataModels.Information;
 import com.rug.gea.DataModels.Serialize;
 import org.bson.Document;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-/**
- * Created by jk on 24/02/18.
- */
-public class Server {
+public class MessageController {
 
     private static final String SERVER_URL = "192.168.178.67";
     private final static String QUEUE_NAME = "periodic_data";
 
     private MongoCollection<Document> mCollection;
 
-    public Server() {
+    public MessageController() {
         MongoClientURI uri = new MongoClientURI("mongodb://server:jeongkyun@ds219879.mlab.com:19879/gaedatabase");
         MongoClient mongoClient = new MongoClient(uri);
         MongoDatabase database = mongoClient.getDatabase("gaedatabase");
@@ -45,7 +42,7 @@ public class Server {
         connection.close();
     }
 
-    private void receiveMessage() throws IOException, TimeoutException {
+    public void receiveMessage() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(SERVER_URL);
         Connection connection = factory.newConnection();
@@ -80,12 +77,5 @@ public class Server {
             }
         };
         channel.basicConsume(QUEUE_NAME, true, consumer);
-    }
-
-    public static void main(String [] args) throws IOException, TimeoutException {
-        System.out.println("I'm server.");
-        Server server = new Server();
-//        server.sendMessage("zipcode", new Information());
-        server.receiveMessage();
     }
 }

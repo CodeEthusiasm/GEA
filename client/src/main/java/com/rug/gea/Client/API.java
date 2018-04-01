@@ -1,6 +1,6 @@
 package com.rug.gea.Client;
 
-import com.rug.gea.Model.Client;
+import com.rug.gea.DataModels.Client;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

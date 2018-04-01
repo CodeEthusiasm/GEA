@@ -2,7 +2,7 @@ package com.rug.gea.Client;
 
 import com.rug.gea.Client.building.LocalBuilding;
 import com.rug.gea.Client.building.RemoteBuilding;
-import com.rug.gea.Model.DataModel;
+import com.rug.gea.DataModels.Data;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -16,13 +16,13 @@ public class BuildingP2PTest {
         LocalBuilding building2 = new LocalBuilding();
 
         // Load the first data from the buildings
-        AtomicReference<DataModel> building1SentModel = new AtomicReference<>();
-        AtomicReference<DataModel> building2SentModel = new AtomicReference<>();
+        AtomicReference<Data> building1SentModel = new AtomicReference<>();
+        AtomicReference<Data> building2SentModel = new AtomicReference<>();
 
-        building1.addListener((DataModel data) -> {
+        building1.addListener((Data data) -> {
             if (building1SentModel.get() == null) building1SentModel.set(data);
         });
-        building2.addListener((DataModel data) -> {
+        building2.addListener((Data data) -> {
             if (building2SentModel.get() == null) building2SentModel.set(data);
         });
 
@@ -33,8 +33,8 @@ public class BuildingP2PTest {
         // Load the remote buildings
         AtomicReference<RemoteBuilding> remoteBuilding1 = new AtomicReference<>();
         AtomicReference<RemoteBuilding> remoteBuilding2 = new AtomicReference<>();
-        AtomicReference<DataModel> building1ReceivedModel = new AtomicReference<>();
-        AtomicReference<DataModel> building2ReceivedModel = new AtomicReference<>();
+        AtomicReference<Data> building1ReceivedModel = new AtomicReference<>();
+        AtomicReference<Data> building2ReceivedModel = new AtomicReference<>();
         setupBuildingConnected(client, remoteBuilding1, building1ReceivedModel);
         setupBuildingConnected(client2, remoteBuilding2, building2ReceivedModel);
 
@@ -76,10 +76,10 @@ public class BuildingP2PTest {
         client2.stop();
     }
 
-    private void setupBuildingConnected(BuildingP2PClient client2, AtomicReference<RemoteBuilding> remoteBuilding2, AtomicReference<DataModel> building2ReceivedModel) {
+    private void setupBuildingConnected(BuildingP2PClient client2, AtomicReference<RemoteBuilding> remoteBuilding2, AtomicReference<Data> building2ReceivedModel) {
         client2.addOnBuildingConnectedListener(newValue -> {
             remoteBuilding2.set(newValue);
-            newValue.addListener((DataModel model) -> {
+            newValue.addListener((Data model) -> {
                 if (building2ReceivedModel.get() == null)
                     building2ReceivedModel.set(model);
             });

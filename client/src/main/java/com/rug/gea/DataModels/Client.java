@@ -1,8 +1,8 @@
-package com.rug.gea.Model;
+package com.rug.gea.DataModels;
 
 import java.io.*;
 
-public class Client {
+public class Client implements Serializable{
 
     private String address;
     private String zip;

@@ -1,4 +1,4 @@
-package com.rug.gea.Model;
+package com.rug.gea.DataModels;
 
 import java.io.Serializable;
 

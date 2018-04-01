@@ -2,7 +2,9 @@ package com.rug.gea.DataModels;
 
 import org.springframework.data.annotation.Id;
 
-public class Client {
+import java.io.Serializable;
+
+public class Client implements Serializable {
 
     @Id
     public String id;
