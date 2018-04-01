@@ -4,10 +4,14 @@ package com.rug.gea.Controllers;
 import com.rug.gea.Collections.ClientsRepository;
 import com.rug.gea.Collections.DataRepository;
 import com.rug.gea.DataModels.Client;
+import com.rug.gea.DataModels.Information;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 @RestController
 public class APIController {
@@ -35,6 +39,11 @@ public class APIController {
     {
         Client client = new Client(address,zip,sqm,connectAddress,buildingType);
         clients.save(client);
+        try {
+            MessageController.sendMessage(client.zip, new Information(Information.Request.Create, client));
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
+        }
         return client;
     }
 
@@ -60,6 +69,11 @@ public class APIController {
         Optional<Client> client = clients.findById(id);
         if(client.isPresent()){
             clients.delete(client.get());
+            try {
+                MessageController.sendMessage(client.get().zip, new Information(Information.Request.Delete, client.get()));
+            } catch (IOException | TimeoutException e) {
+                e.printStackTrace();
+            }
             return ResponseEntity.ok().build();
 
         }

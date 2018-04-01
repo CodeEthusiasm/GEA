@@ -4,14 +4,17 @@ import com.rug.gea.Collections.ClientsRepository;
 import com.rug.gea.Collections.DataRepository;
 import com.rug.gea.DataModels.Client;
 import com.rug.gea.DataModels.Data;
+import com.rug.gea.DataModels.Information;
 import com.rug.gea.DataModels.PredictWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.OptionalDouble;
+import java.util.concurrent.TimeoutException;
 
 @Controller
 public class WebpageController {
@@ -36,6 +39,11 @@ public class WebpageController {
     @RequestMapping(value = "client", method = RequestMethod.POST)
     public String addClient(Model model,@ModelAttribute Client client){
         clients.save(client);
+        try {
+            MessageController.sendMessage(client.zip, new Information(Information.Request.Create, client));
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
+        }
         addAttributes(model,0,0);
         return "index";
     }

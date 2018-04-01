@@ -1,14 +1,15 @@
 package com.rug.gea.DataModels;
 
-import java.io.*;
+import java.io.Serializable;
 
 public class Client implements Serializable{
 
-    private String address;
-    private String zip;
-    private int sqm;
-    private String connectAddress;
-    private String buildingType;
+    public transient String id;
+    public String address;
+    public String zip;
+    public int sqm;
+    public String connectAddress;
+    public String buildingType;
 
     public String getBuildingType() {
         return buildingType;
@@ -29,6 +30,16 @@ public class Client implements Serializable{
         this.connectAddress = connectAddress;
         this.buildingType = buildingType;
     }
+
+    public Client(String id, String address, String zip, int sqm, String connectAddress, String buildingType) {
+        this.id = id;
+        this.address = address;
+        this.zip = zip;
+        this.sqm = sqm;
+        this.connectAddress = connectAddress;
+        this.buildingType = buildingType;
+    }
+
 
     public String getAddress() {
 

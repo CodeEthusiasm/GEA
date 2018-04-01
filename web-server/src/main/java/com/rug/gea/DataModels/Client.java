@@ -7,7 +7,7 @@ import java.io.Serializable;
 public class Client implements Serializable {
 
     @Id
-    public String id;
+    public transient String id;
     public String address;
     public String zip;
     public int sqm;
@@ -75,6 +75,12 @@ public class Client implements Serializable {
 
     public void setConnectAddress(String connectAddress) {
         this.connectAddress = connectAddress;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Client c = (Client) obj;
+        return c.getConnectAddress().equals(this.connectAddress);
     }
 
     @Override

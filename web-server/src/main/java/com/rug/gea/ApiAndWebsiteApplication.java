@@ -10,8 +10,7 @@ import java.util.concurrent.TimeoutException;
 @SpringBootApplication
 public class ApiAndWebsiteApplication {
 	public static void main(String[] args) throws IOException, TimeoutException {
-		MessageController mc = new MessageController();
-		mc.receiveMessage();
+		MessageController.receiveMessage();
 		SpringApplication.run(ApiAndWebsiteApplication.class, args);
 	}
 }
