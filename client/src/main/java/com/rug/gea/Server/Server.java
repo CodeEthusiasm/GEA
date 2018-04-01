@@ -19,7 +19,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class Server {
 
-    private final static String SERVER_URL = "localhost";
+    private static final String SERVER_URL = "192.168.178.67";
     private final static String QUEUE_NAME = "periodic_data";
 
     private MongoCollection<Document> mCollection;
