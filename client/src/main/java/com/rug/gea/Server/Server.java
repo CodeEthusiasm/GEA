@@ -1,6 +1,5 @@
 package com.rug.gea.Server;
 
-import com.rug.gea.Model.Client;
 import com.rug.gea.Model.DataModel;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;

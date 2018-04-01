@@ -25,7 +25,7 @@ public class BuildingP2PClient {
 
     private boolean shouldRun;
 
-    BuildingP2PClient(int port) throws IOException {
+    public BuildingP2PClient(int port) throws IOException {
         shouldRun = true;
         new Thread(new AcceptRunnable(port)).start();
     }
@@ -118,7 +118,7 @@ public class BuildingP2PClient {
                         ObjectInputStream inputStream = new ObjectInputStream(is);
                         DataModel model = (DataModel) inputStream.readObject();
                         building.addData(model);
-                    } catch (SocketException e) {
+                    } catch (SocketException | EOFException e) {
                         try {
                             this.socket.close();
                         } catch (IOException e1) {

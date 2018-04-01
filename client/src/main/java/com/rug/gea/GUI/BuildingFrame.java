@@ -1,23 +1,32 @@
-package com.rug.gea.Client;
+package com.rug.gea.GUI;
 
+import com.rug.gea.Client.BuildingClient;
+import com.rug.gea.Client.BuildingP2PClient;
 import com.rug.gea.Client.building.LocalBuilding;
 import com.rug.gea.Model.Client;
 import com.rug.gea.Model.DataModel;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientMain {
+public class BuildingFrame extends JFrame {
 
-    private static final int INDEX_ELECTRICITY = 0;
-    private static final int INDEX_GAS = 1;
+    private BuildingPanel panel;
+    private static final int INDEX_GAS = 0;
+    private static final int INDEX_ELECTRICITY = 1;
     private static final String ZIP = "9714BN";
     private static final int PORT = 2000;
 
-    public static double[] getAverage(List<DataModel> data) {
+    private double[] localUsage = new double[]{0, 0};
+    private double[] remoteUsage = new double[]{0, 0};
+
+    private static double[] getAverage(List<DataModel> data) {
         double elec = 0, gas = 0;
         for (DataModel d : data) {
             elec += d.getElecPerSqr();
@@ -28,19 +37,23 @@ public class ClientMain {
         return new double[]{elec, gas};
     }
 
-    public static void main(String argc[]) throws IOException {
+    private void setup(final BuildingPanel panel) throws IOException {
         LocalBuilding building = new LocalBuilding();
-        List<DataModel> myUsage = new ArrayList<>();
+        java.util.List<DataModel> myUsage = new ArrayList<>();
         building.addListener(d -> {
             myUsage.add(d);
             double[] average = getAverage(myUsage);
+            localUsage[INDEX_ELECTRICITY] = average[INDEX_ELECTRICITY];
+            localUsage[INDEX_GAS] = average[INDEX_GAS];
+            panel.setMyGas(localUsage[INDEX_GAS]);
+            panel.setMyElec(localUsage[INDEX_ELECTRICITY]);
             System.out.println("My Usage-> electricity : " + average[INDEX_ELECTRICITY] + " kWh, gas : " + average[INDEX_GAS] + "m^3");
         });
 
         BuildingP2PClient p2pClient = new BuildingP2PClient(PORT);
         BuildingClient buildingClient = new BuildingClient(building, ZIP);
 
-        List<DataModel> neighborUsage = new ArrayList<>();
+        java.util.List<DataModel> neighborUsage = new ArrayList<>();
         List<Client> clients = buildingClient.getClients();
         buildingClient.addListener(() -> System.out.println("clients are updated"));
 
@@ -48,6 +61,10 @@ public class ClientMain {
             b.addListener(d -> {
                 neighborUsage.add(d);
                 double[] average = getAverage(neighborUsage);
+                remoteUsage[INDEX_ELECTRICITY] = average[INDEX_ELECTRICITY];
+                remoteUsage[INDEX_GAS] = average[INDEX_GAS];
+                panel.setNeighborGas(remoteUsage[INDEX_GAS]);
+                panel.setNeighborElec(remoteUsage[INDEX_ELECTRICITY]);
                 System.out.println("Average electricity usage : " + average[INDEX_ELECTRICITY] + " kWh, gas usage : " + average[INDEX_GAS] + " m^3");
             });
         });
@@ -68,5 +85,21 @@ public class ClientMain {
         }
         building.addListener(p2pClient::sendData);
         building.start();
+    }
+
+    public BuildingFrame() throws HeadlessException, IOException {
+        super();
+        panel = new BuildingPanel();
+        panel.setMyElec(0);
+        panel.setMyGas(0);
+        panel.setNeighborElec(0);
+        panel.setNeighborGas(0);
+        setup(panel);
+        this.setTitle("Compare with neighbors");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setSize(400, 300);
+        this.setLocationRelativeTo(null);
+        this.add(panel);
+        this.setVisible(true);
     }
 }
