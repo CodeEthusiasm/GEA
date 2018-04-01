@@ -38,6 +38,11 @@ public class BuildingFrame extends JFrame {
         return new double[]{elec, gas};
     }
 
+    /**
+     * Setting up the buildings and clients
+     * @param panel
+     * @throws IOException
+     */
     private void setup(final BuildingPanel panel) throws IOException {
         building = new LocalBuilding();
         java.util.List<Data> myUsage = new ArrayList<>();

@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 
-/** A building that generates data from time to time. */
-
+/**
+ *  A building that generates data from time to time.
+ **/
 public class LocalBuilding extends Building {
 
     private ArrayList<Data> data = new ArrayList<>();

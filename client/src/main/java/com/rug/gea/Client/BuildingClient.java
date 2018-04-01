@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Created by jk on 24/02/18.
+ * This class deals with sending/receiving the consumption data or the updated information
+ * from the server through rabbitMQ.
  */
 public class BuildingClient {
 
@@ -44,6 +45,12 @@ public class BuildingClient {
         return clients;
     }
 
+    /**
+     * Sends a message that includes gas and electricity consumption to the server.
+     * @param data
+     * @throws IOException
+     * @throws TimeoutException
+     */
     private void sendMessage(Data data) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(SERVER_URL);
@@ -57,6 +64,12 @@ public class BuildingClient {
         connection.close();
     }
 
+    /**
+     * Receives a message from the server where it sends updated information in a certain zip-code.
+     * @param zip
+     * @throws IOException
+     * @throws TimeoutException
+     */
     public void receiveMessage(String zip) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(SERVER_URL);
@@ -86,6 +99,10 @@ public class BuildingClient {
         channel.basicConsume(queueName, true, consumer);
     }
 
+    /**
+     * Handles updated information about neighbors from the server.
+     * @param info
+     */
     public void handlingInfo(Information info) {
         switch (info.getRequest()) {
             case Create:

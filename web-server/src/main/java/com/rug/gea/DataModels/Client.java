@@ -4,6 +4,9 @@ import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
 
+/**
+ * Client model
+ */
 public class Client implements Serializable {
 
     @Id

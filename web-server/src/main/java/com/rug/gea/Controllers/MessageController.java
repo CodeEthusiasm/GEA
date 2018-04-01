@@ -18,6 +18,13 @@ public final class MessageController {
     private static final String SERVER_URL = "192.168.178.67";
     private final static String QUEUE_NAME = "periodic_data";
 
+    /**
+     * Broadcast updated information to the buildings in a certain zip code
+     * @param zip
+     * @param info
+     * @throws IOException
+     * @throws TimeoutException
+     */
     public static void sendMessage(String zip, Information info) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(SERVER_URL);
@@ -33,6 +40,11 @@ public final class MessageController {
         connection.close();
     }
 
+    /**
+     * Receives the consumption data from building clients and stores into database.
+     * @throws IOException
+     * @throws TimeoutException
+     */
     public static void receiveMessage() throws IOException, TimeoutException {
         MongoClientURI uri = new MongoClientURI("mongodb://server:jeongkyun@ds219879.mlab.com:19879/gaedatabase");
         MongoClient mongoClient = new MongoClient(uri);

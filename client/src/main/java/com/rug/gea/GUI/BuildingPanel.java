@@ -7,6 +7,9 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * Basic panel to demonstrate exchanging data
+ */
 public class BuildingPanel extends JPanel {
 
     private JTextField myGas;
@@ -14,6 +17,9 @@ public class BuildingPanel extends JPanel {
     private JTextField neighborGas;
     private JTextField neighborElec;
     private JTextField neighborList;
+
+    private double neighborgas = 0;
+    private double neighborelec = 0;
 
     public BuildingPanel() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -60,9 +66,6 @@ public class BuildingPanel extends JPanel {
         this.setBorder(new EmptyBorder(10, 10, 10, 10));
         this.setVisible(true);
     }
-
-    private double neighborgas = 0;
-    private double neighborelec = 0;
 
     public void setMyGas(double myGas) {
         this.myGas.setText("[    Gas    ] " + myGas + " m^3");

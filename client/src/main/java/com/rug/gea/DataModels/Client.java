@@ -2,6 +2,9 @@ package com.rug.gea.DataModels;
 
 import java.io.Serializable;
 
+/**
+ * Client model
+ */
 public class Client implements Serializable{
 
     public transient String id;

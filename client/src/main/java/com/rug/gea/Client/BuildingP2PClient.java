@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Created by jk on 24/02/18.
+ * Building peer to peer client class which establish a connection between buildings
+ * through the sockets so that the data is possibly sent/received.
  */
 public class BuildingP2PClient {
 
@@ -63,6 +64,9 @@ public class BuildingP2PClient {
         }
     }
 
+    /**
+     * Runnable class in order to establish a connection
+     */
     private class AcceptRunnable implements Runnable {
 
         private final ServerSocket serverSocket;
@@ -91,6 +95,9 @@ public class BuildingP2PClient {
         }
     }
 
+    /**
+     * Runnable class for sending/receiving data through the established connection between buildings.
+     */
     private class ConnectionRunnable implements Runnable {
 
         private int sent = 0;
