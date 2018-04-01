@@ -3,11 +3,15 @@ package com.rug.gea.Controllers;
 import com.rug.gea.Collections.ClientsRepository;
 import com.rug.gea.Collections.DataRepository;
 import com.rug.gea.DataModels.Client;
+import com.rug.gea.DataModels.Data;
 import com.rug.gea.DataModels.PredictWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.OptionalDouble;
 
 @Controller
 public class WebpageController {
@@ -16,9 +20,9 @@ public class WebpageController {
     @Autowired
     private DataRepository data;
 
-    private void addAttributes(Model model,int gas,int electricity) {
-        model.addAttribute("expectedElectricity", gas);
-        model.addAttribute("expectedGas",electricity);
+    private void addAttributes(Model model,double gas,double electricity) {
+        model.addAttribute("expectedElectricity", String.format("%.2f kWh per day",gas));
+        model.addAttribute("expectedGas", String.format("%.2f kWh per day",electricity));
         model.addAttribute("client", new Client()); // adding in model
         model.addAttribute("metersAndType", new PredictWrapper());
     }
@@ -38,8 +42,18 @@ public class WebpageController {
 
     @RequestMapping(value = "predict", method = RequestMethod.POST)
     public String predict(Model model,@ModelAttribute PredictWrapper metersAndType){
-        System.out.println(data.findByType(metersAndType.getType()));
-        addAttributes(model,0,0);
+        List<Data> readings = data.findByType(metersAndType.getType());
+        double gas = 0;
+        double electricity = 0;
+        OptionalDouble optionalGas = readings.stream().mapToInt(value -> value.getGas()).average();
+        if (optionalGas.isPresent()) {
+            gas = optionalGas.getAsDouble() * metersAndType.getSqm();
+        }
+        OptionalDouble optionalElectricity = readings.stream().mapToInt(value -> value.getElectricity()).average();
+        if (optionalElectricity.isPresent()){
+            electricity = optionalElectricity.getAsDouble() * metersAndType.getSqm();
+        }
+        addAttributes(model,gas,electricity);
         return "index";
     }
 
