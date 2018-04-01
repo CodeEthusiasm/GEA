@@ -2,6 +2,9 @@ package com.rug.gea.DataModels;
 
 import java.io.Serializable;
 
+/**
+ * Information model for updating neighbors information depending on request
+ */
 public class Information implements Serializable {
     public enum Request {
         Create, Update, Delete

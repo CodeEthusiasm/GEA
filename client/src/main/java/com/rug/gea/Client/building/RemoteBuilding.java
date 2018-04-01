@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * A remote building that is connected to the local building
+ */
 public class RemoteBuilding extends Building {
     private ArrayList<Data> data = new ArrayList<>();
     private ArrayList<OnDataReceivedListener> listeners = new ArrayList<>();

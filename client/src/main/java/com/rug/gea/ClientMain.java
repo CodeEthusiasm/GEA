@@ -9,6 +9,13 @@ import java.io.IOException;
 public class ClientMain {
 
     public static void main(String argc[]) throws IOException {
-        new BuildingFrame();
+        BuildingFrame frame = new BuildingFrame();
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                frame.close();
+            }
+        });
     }
 }

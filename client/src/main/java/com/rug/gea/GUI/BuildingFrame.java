@@ -16,7 +16,6 @@ import java.util.List;
 
 public class BuildingFrame extends JFrame {
 
-    private BuildingPanel panel;
     private static final int INDEX_GAS = 0;
     private static final int INDEX_ELECTRICITY = 1;
     private static final String ZIP = "9714BN";
@@ -24,6 +23,9 @@ public class BuildingFrame extends JFrame {
 
     private double[] localUsage = new double[]{0, 0};
     private double[] remoteUsage = new double[]{0, 0};
+
+    private LocalBuilding building;
+    private BuildingP2PClient p2pClient;
 
     private static double[] getAverage(List<Data> data) {
         double elec = 0, gas = 0;
@@ -36,8 +38,13 @@ public class BuildingFrame extends JFrame {
         return new double[]{elec, gas};
     }
 
+    /**
+     * Setting up the buildings and clients
+     * @param panel
+     * @throws IOException
+     */
     private void setup(final BuildingPanel panel) throws IOException {
-        LocalBuilding building = new LocalBuilding();
+        building = new LocalBuilding();
         java.util.List<Data> myUsage = new ArrayList<>();
         building.addListener(d -> {
             myUsage.add(d);
@@ -49,7 +56,7 @@ public class BuildingFrame extends JFrame {
             System.out.println("My Usage-> electricity : " + average[INDEX_ELECTRICITY] + " kWh, gas : " + average[INDEX_GAS] + "m^3");
         });
 
-        BuildingP2PClient p2pClient = new BuildingP2PClient(PORT);
+        p2pClient = new BuildingP2PClient(PORT);
         BuildingClient buildingClient = new BuildingClient(building, ZIP);
 
         java.util.List<Data> neighborUsage = new ArrayList<>();
@@ -87,9 +94,14 @@ public class BuildingFrame extends JFrame {
         building.start();
     }
 
+    public void close() {
+        building.stop();
+        p2pClient.stop();
+    }
+
     public BuildingFrame() throws HeadlessException, IOException {
         super();
-        panel = new BuildingPanel();
+        BuildingPanel panel = new BuildingPanel();
         panel.setMyElec(0);
         panel.setMyGas(0);
         panel.setNeighborElec(0);

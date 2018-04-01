@@ -13,21 +13,19 @@ import org.bson.Document;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-public class MessageController {
+public final class MessageController {
 
     private static final String SERVER_URL = "192.168.178.67";
     private final static String QUEUE_NAME = "periodic_data";
 
-    private MongoCollection<Document> mCollection;
-
-    public MessageController() {
-        MongoClientURI uri = new MongoClientURI("mongodb://server:jeongkyun@ds219879.mlab.com:19879/gaedatabase");
-        MongoClient mongoClient = new MongoClient(uri);
-        MongoDatabase database = mongoClient.getDatabase("gaedatabase");
-        mCollection = database.getCollection("data");
-    }
-
-    public void sendMessage(String zip, Information info) throws IOException, TimeoutException {
+    /**
+     * Broadcast updated information to the buildings in a certain zip code
+     * @param zip
+     * @param info
+     * @throws IOException
+     * @throws TimeoutException
+     */
+    public static void sendMessage(String zip, Information info) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(SERVER_URL);
         Connection connection = factory.newConnection();
@@ -42,7 +40,17 @@ public class MessageController {
         connection.close();
     }
 
-    public void receiveMessage() throws IOException, TimeoutException {
+    /**
+     * Receives the consumption data from building clients and stores into database.
+     * @throws IOException
+     * @throws TimeoutException
+     */
+    public static void receiveMessage() throws IOException, TimeoutException {
+        MongoClientURI uri = new MongoClientURI("mongodb://server:jeongkyun@ds219879.mlab.com:19879/gaedatabase");
+        MongoClient mongoClient = new MongoClient(uri);
+        MongoDatabase database = mongoClient.getDatabase("gaedatabase");
+        MongoCollection<Document> collection = database.getCollection("data");
+
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(SERVER_URL);
         Connection connection = factory.newConnection();
@@ -69,7 +77,7 @@ public class MessageController {
                     }
                     document.append("gas", data.getGas())
                             .append("electricity", data.getElectricity());
-                    mCollection.insertOne(document);
+                    collection.insertOne(document);
                     System.out.println(" [x] Received '" + data + "'");
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();

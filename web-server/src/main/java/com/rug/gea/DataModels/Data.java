@@ -3,7 +3,7 @@ package com.rug.gea.DataModels;
 import java.io.*;
 
 /**
- * Created by jk on 13/03/18.
+ * Data model
  */
 public class Data implements Serializable {
 
