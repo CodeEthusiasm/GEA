@@ -47,9 +47,9 @@ public class BuildingClient {
 
     /**
      * Sends a message that includes gas and electricity consumption to the server.
-     * @param data
-     * @throws IOException
-     * @throws TimeoutException
+     * @param data local gas and electricity consumption
+     * @throws IOException if it encounters a problem
+     * @throws TimeoutException if a blocking operation times out
      */
     private void sendMessage(Data data) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
@@ -66,9 +66,9 @@ public class BuildingClient {
 
     /**
      * Receives a message from the server where it sends updated information in a certain zip-code.
-     * @param zip
-     * @throws IOException
-     * @throws TimeoutException
+     * @param zip zip code
+     * @throws IOException if it encounters a problem
+     * @throws TimeoutException if a blocking operation times out
      */
     public void receiveMessage(String zip) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
@@ -101,7 +101,7 @@ public class BuildingClient {
 
     /**
      * Handles updated information about neighbors from the server.
-     * @param info
+     * @param info includes updated information for the neighbors
      */
     public void handlingInfo(Information info) {
         switch (info.getRequest()) {
