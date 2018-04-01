@@ -1,11 +1,12 @@
 package com.rug.gea.Client;
 
 import com.rug.gea.Client.building.RemoteBuilding;
-import com.rug.gea.Model.DataModel;
+import com.rug.gea.DataModels.Data;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
@@ -24,7 +25,7 @@ public class BuildingP2PClient {
 
     private boolean shouldRun;
 
-    BuildingP2PClient(int port) throws IOException {
+    public BuildingP2PClient(int port) throws IOException {
         shouldRun = true;
         new Thread(new AcceptRunnable(port)).start();
     }
@@ -51,7 +52,7 @@ public class BuildingP2PClient {
         this.dataToSend.add(data);
     }
 
-    public void sendData(DataModel data) {
+    public void sendData(Data data) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             ObjectOutputStream stream1 = new ObjectOutputStream(stream);
@@ -93,12 +94,14 @@ public class BuildingP2PClient {
     private class ConnectionRunnable implements Runnable {
 
         private int sent = 0;
+        private Socket socket;
         private final OutputStream os;
         private final InputStream is;
         private final boolean receive;
         private final RemoteBuilding building;
 
         ConnectionRunnable(Socket socket, boolean receive, RemoteBuilding building) throws IOException {
+            this.socket = socket;
             System.out.println("Connected to building " + socket.getPort());
             this.receive = receive;
             os = socket.getOutputStream();
@@ -113,8 +116,14 @@ public class BuildingP2PClient {
                     try {
                         // Receive data
                         ObjectInputStream inputStream = new ObjectInputStream(is);
-                        DataModel model = (DataModel) inputStream.readObject();
+                        Data model = (Data) inputStream.readObject();
                         building.addData(model);
+                    } catch (SocketException | EOFException e) {
+                        try {
+                            this.socket.close();
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
                     } catch (IOException | ClassNotFoundException | TimeoutException e) {
                         e.printStackTrace();
                     }
@@ -123,6 +132,12 @@ public class BuildingP2PClient {
                     if (sent < dataToSend.size()) {
                         try {
                             os.write(dataToSend.get(sent));
+                        } catch (SocketException e) {
+                            try {
+                                this.socket.close();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

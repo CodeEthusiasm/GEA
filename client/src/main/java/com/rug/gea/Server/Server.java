@@ -1,11 +1,13 @@
 package com.rug.gea.Server;
 
-import com.rug.gea.Model.DataModel;
+import com.rug.gea.DataModels.Data;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.rabbitmq.client.*;
+import com.rug.gea.DataModels.Information;
+import com.rug.gea.DataModels.Serialize;
 import org.bson.Document;
 
 import java.io.*;
@@ -16,8 +18,8 @@ import java.util.concurrent.TimeoutException;
  */
 public class Server {
 
-    private final static String SERVER_URL = "localhost";
-    private final static String QUEUE_NAME = "perodic_data";
+    private static final String SERVER_URL = "192.168.178.67";
+    private final static String QUEUE_NAME = "periodic_data";
 
     private MongoCollection<Document> mCollection;
 
@@ -26,6 +28,21 @@ public class Server {
         MongoClient mongoClient = new MongoClient(uri);
         MongoDatabase database = mongoClient.getDatabase("gaedatabase");
         mCollection = database.getCollection("data");
+    }
+
+    public void sendMessage(String zip, Information info) throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(SERVER_URL);
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+
+        channel.exchangeDeclare(zip, "fanout");
+
+        channel.basicPublish(zip, "", null, Serialize.serialize(info));
+        System.out.println(" [x] Sent '" + info + "'");
+
+        channel.close();
+        connection.close();
     }
 
     private void receiveMessage() throws IOException, TimeoutException {
@@ -39,9 +56,9 @@ public class Server {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                 try {
-                    DataModel data = DataModel.deserialize(body);
+                    Data data = (Data)Serialize.deserialize(body);
                     Document document = new Document();
-                    String buildingType = data.getBuildingType().toLowerCase();
+                    String buildingType = data.getType().toLowerCase();
                     if ("house".equals(buildingType)) {
                         document.append("type", "house");
                     } else if ("studio".equals(buildingType)) {
@@ -53,8 +70,8 @@ public class Server {
                     } else {
                         document.append("type", "default");
                     }
-                    document.append("gas", data.getGasPerSqr())
-                            .append("electricity", data.getElecPerSqr());
+                    document.append("gas", data.getGas())
+                            .append("electricity", data.getElectricity());
                     mCollection.insertOne(document);
                     System.out.println(" [x] Received '" + data + "'");
                 } catch (ClassNotFoundException e) {
@@ -65,13 +82,10 @@ public class Server {
         channel.basicConsume(QUEUE_NAME, true, consumer);
     }
 
-    public static void main(String [] args)  {
+    public static void main(String [] args) throws IOException, TimeoutException {
         System.out.println("I'm server.");
         Server server = new Server();
-        try {
-            server.receiveMessage();
-        } catch (IOException | TimeoutException e) {
-            e.printStackTrace();
-        }
+//        server.sendMessage("zipcode", new Information());
+        server.receiveMessage();
     }
 }

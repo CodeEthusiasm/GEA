@@ -1,18 +1,18 @@
 package com.rug.gea.Client.building;
 
-import com.rug.gea.Model.DataModel;
+import com.rug.gea.DataModels.Data;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 public abstract class Building {
     public interface OnDataReceivedListener {
-        void onDataReceived(DataModel d) throws IOException, TimeoutException;
+        void onDataReceived(Data d) throws IOException, TimeoutException;
     }
 
-    private DataModel[] data;
+    private Data[] data;
 
-    public DataModel[] getData() {
+    public Data[] getData() {
         return data;
     }
 

@@ -45,11 +45,11 @@ public class WebpageController {
         List<Data> readings = data.findByType(metersAndType.getType());
         double gas = 0;
         double electricity = 0;
-        OptionalDouble optionalGas = readings.stream().mapToInt(value -> value.getGas()).average();
+        OptionalDouble optionalGas = readings.stream().mapToDouble(Data::getGas).average();
         if (optionalGas.isPresent()) {
             gas = optionalGas.getAsDouble() * metersAndType.getSqm();
         }
-        OptionalDouble optionalElectricity = readings.stream().mapToInt(value -> value.getElectricity()).average();
+        OptionalDouble optionalElectricity = readings.stream().mapToDouble(Data::getElectricity).average();
         if (optionalElectricity.isPresent()){
             electricity = optionalElectricity.getAsDouble() * metersAndType.getSqm();
         }
