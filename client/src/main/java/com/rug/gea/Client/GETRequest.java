@@ -16,7 +16,7 @@ import java.util.List;
  * Get-request implementation for retrieving the neighbors list.
  */
 
-public final class API {
+public final class GETRequest {
 
     private static final String SERVER_URL = "http://192.168.178.67:8080/";
 

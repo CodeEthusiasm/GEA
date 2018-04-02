@@ -29,7 +29,7 @@ public class BuildingClient {
 
     public BuildingClient(Building building, String zip) {
         building.addListener(this::sendMessage);
-        clients = API.fetchData(zip);
+        clients = GETRequest.fetchData(zip);
         try {
             receiveMessage(zip);
         } catch (IOException | TimeoutException e) {
