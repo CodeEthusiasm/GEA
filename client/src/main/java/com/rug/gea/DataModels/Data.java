@@ -11,6 +11,8 @@ public class Data implements Serializable {
     private double gas;
     private double electricity;
 
+    public Data() {}
+
     public Data(String type, int electricity, int gas, int size) {
         this.type = type;
         this.electricity = electricity / (double)size;

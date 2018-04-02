@@ -40,8 +40,8 @@ public class BuildingFrame extends JFrame {
 
     /**
      * Setting up the buildings and clients
-     * @param panel
-     * @throws IOException
+     * @param panel JPanel contents of JFrame
+     * @throws IOException if it encounters a problem
      */
     private void setup(final BuildingPanel panel) throws IOException {
         building = new LocalBuilding();
