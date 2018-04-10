@@ -18,7 +18,7 @@ import java.util.List;
 
 public final class GETRequest {
 
-    private static final String SERVER_URL = "http://192.168.178.67:8080/";
+    private static final String SERVER_URL = "http://145.90.151.200:8080/";
 
     private static byte[] getNeighborsBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);

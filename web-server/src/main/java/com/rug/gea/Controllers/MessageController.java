@@ -15,7 +15,7 @@ import java.util.concurrent.TimeoutException;
 
 public final class MessageController {
 
-    private static final String SERVER_URL = "192.168.178.67";
+    private static final String SERVER_URL = "145.90.151.200";
     private final static String QUEUE_NAME = "periodic_data";
 
     /**
